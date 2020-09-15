@@ -1,27 +1,27 @@
-fn create_override(directory: &std::path::Path) -> ignore::overrides::Override {
-    let mut override_builder = ignore::overrides::OverrideBuilder::new(directory);
-    override_builder.add(".hidden_dir").unwrap();
-    let glob_override = override_builder.build().unwrap();
-    glob_override
-}
+use std::{fs::self, fs::DirEntry, path::Path, io};
 
-fn print_dir() {
-    let test_dir = "test_dir";
-    let test_path = std::path::PathBuf::from(&test_dir);
-    let orrde = create_override(&test_path);
-    let files: Vec<_> = ignore::WalkBuilder::new(test_dir)
-        .git_ignore(false)
-        .overrides(orrde)
-        .build()
-        .map(|entry| entry.unwrap().path().to_owned())
-        .collect();
-
-    for i in files {
-        println!("File {:?}", &i)
+// one possible implementation of walking a directory only visiting files
+fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
+    if dir.is_dir() {
+        for entry in fs::read_dir(dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                visit_dirs(&path, cb)?;
+            } else {
+                cb(&entry);
+            }
+        }
     }
-
+    Ok(())
 }
 
-fn main() {
-    print_dir();
+fn printentry(entry: &DirEntry) {
+    println!("{:?}", entry)
+}
+
+fn main() -> io::Result<()> {
+    let test_path = Path::new("test_dir");
+    visit_dirs(test_path, &printentry)?;
+    Ok(())
 }

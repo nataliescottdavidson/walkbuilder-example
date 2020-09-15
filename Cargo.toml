@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 ignore = "0.4.16"
+failure = "0.1.8"
