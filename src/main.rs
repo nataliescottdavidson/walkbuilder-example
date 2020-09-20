@@ -1,5 +1,6 @@
 use std::{fs::self, fs::DirEntry, path::Path, io};
-
+#[macro_use] extern crate lazy_static;
+use regex::Regex;
 // one possible implementation of walking a directory only visiting files
 fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
     if dir.is_dir() {
@@ -37,8 +38,15 @@ fn print_dir() {
         .map(|entry| entry.unwrap().path().to_owned())
         .collect();
 
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r"^test_dir(/.*)*(/\.(.)*)+(/.*)*$").unwrap();
+        };
+
     for i in files {
-        println!("File {:?}", &i)
+        println!("File {:?}", &i);
+        if RE.is_match(&i.into_os_string().into_string().unwrap()) {
+            println!("matched");
+        }
     }
 
 }

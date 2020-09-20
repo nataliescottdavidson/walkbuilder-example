@@ -273,6 +273,8 @@ version = "0.1.0"
 dependencies = [
  "failure",
  "ignore",
+ "lazy_static",
+ "regex",
 ]
 
 [[package]]
