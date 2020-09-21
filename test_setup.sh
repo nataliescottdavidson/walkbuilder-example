@@ -17,3 +17,6 @@ touch test_dir/.other_hidden_dir/.hidden_file.txt
 touch test_dir/other_nested_dir/file1.txt
 touch test_dir/nested_dir/file2.txt
 touch test_dir/nested_dir/.hidden_file.txt
+touch test_dir/.well-known/file.jpg
+touch test_dir/.well-known/.hidden
+

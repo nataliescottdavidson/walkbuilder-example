@@ -1,7 +1,7 @@
 use std::{fs::self, fs::DirEntry, path::Path, io};
 #[macro_use] extern crate lazy_static;
 use regex::Regex;
-// one possible implementation of walking a directory only visiting files
+// from cookbook
 fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
@@ -28,6 +28,7 @@ fn create_override(directory: &std::path::Path) -> ignore::overrides::Override {
 }
 
 fn print_dir() {
+
     let test_dir = "test_dir";
     let test_path = std::path::PathBuf::from(&test_dir);
     let orrde = create_override(&test_path);
@@ -38,13 +39,21 @@ fn print_dir() {
         .map(|entry| entry.unwrap().path().to_owned())
         .collect();
 
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^test_dir(/.*)*(/\.(.)*)+(/.*)*$").unwrap();
-        };
+        
+            let set: regex::RegexSet = regex::RegexSet::new(&[
+                r"^test_dir(/.*)*(/\.(.)*)+(/.*)*$", // Hidden files
+                r"^test_dir(/.*)*\.well-known(/.*)*$",  // Well known          
+            ]).unwrap();
+            // Pattern negation is not supported in regex crate. Need to take the set difference of these two
+            // and remove those files from to upload
+            // Can be done with include?
+            
+            let reg : Regex = Regex::new(r"^test_dir(/.*)*(/\.(.)*)+(/.*)*$").unwrap();
+        
 
     for i in files {
         println!("File {:?}", &i);
-        if RE.is_match(&i.into_os_string().into_string().unwrap()) {
+        if set.is_match(&i.into_os_string().into_string().unwrap()) {
             println!("matched");
         }
     }
